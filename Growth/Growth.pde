@@ -1,21 +1,44 @@
-ArrayList<Cell> tree;
-int amount;
+ArrayList<Cell> cells = new ArrayList();
+Food food;
+float gravity = 1;
+float drag = 0.2;
+boolean spawnFlag = true;
 
 void setup() {
-  amount = 0;
-
   size(400, 400, P2D);
-  tree = new ArrayList<Cell>();
-  tree.add(new Cell(width/2, height));
-  for (int i=0; i<amount; i++) tree.add(tree.get(i).growCell());
+  colorMode(HSB, 100);
+  //fullScreen();
+  cells.add(new Cell(width/2, height/4));
+  food = new Food (2000);
 }
 
 
 
-void draw() {
-  background(255);
-  for (Cell cell : tree) cell.show();
-  stroke(0);
+void draw() {  
+  pushMatrix();
+  strokeWeight(1);
+  background(0, 0, 100);
 
-  if (mousePressed) tree.add(tree.get(tree.size()-1).growCell());
+  for (int i=0; i<cells.size(); i++) {
+    if (cells.get(i).r >= cells.get(i).splitSize ) cells.add(cells.get(i).split());
+    if (cells.get(i).alive) {
+      cells.get(i).eat(food);
+      cells.get(i).munch();
+      cells.get(i).update();
+      cells.get(i).show();
+    } else if (!cells.get(i).alive) cells.remove(i);
+  }
+  food.show();
+  food.update();
+
+
+  food.sprinkle();
+
+  if (mousePressed && spawnFlag) {
+    cells.add(new Cell(mouseX, mouseY));
+    spawnFlag = false;
+  }
+  else if(!mousePressed && !spawnFlag) spawnFlag = true;
+
+  popMatrix();
 }
